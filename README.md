@@ -1,3 +1,7 @@
-theme: jekyll-theme-cayman
+## Redux源码解析
 
-## test
+流程：从最常见的api到这些api之间的关系最后查看
+
+
+首先提出三个问题
+1.
