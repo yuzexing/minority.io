@@ -31,31 +31,38 @@ export const ActionTypes = {
 /**
  * createStore接受三个参数
  * 1. reducer处理action的函数
- * 2. reducer的默认状态
- * 3. enhancer
+ * 2. reducer的初始状态
+ * 3. enhancer增强器，是个函数
  */
 export default function createStore(reducer, preloadedState, enhancer) {
+  // 一系列的参数合法性判断，这里允许用户第二参数传入enhancer
   if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
     enhancer = preloadedState
     preloadedState = undefined
   }
-
+  // enhancer合法性判断
   if (typeof enhancer !== 'undefined') {
     if (typeof enhancer !== 'function') {
       throw new Error('Expected the enhancer to be a function.')
     }
-
+    // 将createStore函数作为参数传递执行enhancer，再执行返回enhancer(createStore)的函数，将reducer, preloadedState作为参数
+    // enhancer通过applyMiddleware生成，看不懂没关系，后面会重点说。
     return enhancer(createStore)(reducer, preloadedState)
   }
 
   if (typeof reducer !== 'function') {
     throw new Error('Expected the reducer to be a function.')
   }
-
+  // 记录传入的参数
   let currentReducer = reducer
   let currentState = preloadedState
+  // 初始化内部参数
+  // 双缓冲读写分离
+  // currentListeners负责读取数据
+  // nextListeners负责写入数据
   let currentListeners = []
   let nextListeners = currentListeners
+  // 标志位，dispatch状态
   let isDispatching = false
 
   function ensureCanMutateNextListeners() {
